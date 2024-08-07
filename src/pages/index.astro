@@ -1,0 +1,89 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Values from "values.js";
+---
+
+<Layout title="Shade Generator">
+  <main>
+    <h1 class="text-4xl mb-4">Shade Generator</h1>
+    <form id="color-form" class="mb-4">
+      <label for="base-color" class="block mb-2">Base Color (Hex):</label>
+      <input
+        type="text"
+        id="base-color"
+        name="base-color"
+        value="#276458"
+        class="border p-2 mb-4"
+        required
+      />
+      <label for="steps" class="block mb-2">Steps:</label>
+      <input
+        type="number"
+        id="steps"
+        name="steps"
+        value="9"
+        class="border p-2 mb-4"
+        required
+        min="1"
+      />
+      <button type="submit" class="bg-blue-500 text-white p-2">Generate</button>
+    </form>
+    <div id="results">
+      <h2 class="text-2xl mb-2">Tints</h2>
+      <div id="tints" class="flex flex-wrap mb-4"></div>
+      <h2 class="text-2xl mb-2">Shades</h2>
+      <div id="shades" class="flex flex-wrap"></div>
+    </div>
+  </main>
+</Layout>
+
+<script type="module">
+  document
+    .getElementById("color-form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const baseColorHex = document.getElementById("base-color").value;
+      const steps = parseInt(document.getElementById("steps").value, 10);
+
+      const { tints, shades } = generateTintsAndShades(baseColorHex, steps);
+
+      displayColors(tints, "tints");
+      displayColors(shades, "shades");
+    });
+
+  function generateTintsAndShades(baseColorHex, steps) {
+    const color = new Values(baseColorHex);
+
+    const tints = [];
+    for (let i = 1; i <= steps; i++) {
+      tints.push(color.tint(i * 10).hexString());
+    }
+
+    const shades = [];
+    for (let i = 1; i <= steps; i++) {
+      shades.push(color.shade(i * 10).hexString());
+    }
+
+    return { tints, shades };
+  }
+
+  function displayColors(colors, elementId) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = "";
+
+    colors.forEach((color) => {
+      const colorBox = document.createElement("div");
+      colorBox.style.backgroundColor = color;
+      colorBox.style.width = "100px";
+      colorBox.style.height = "100px";
+      colorBox.style.margin = "5px";
+      colorBox.style.display = "flex";
+      colorBox.style.alignItems = "center";
+      colorBox.style.justifyContent = "center";
+      colorBox.style.color = "#fff";
+      colorBox.textContent = color;
+      container.appendChild(colorBox);
+    });
+  }
+</script>
